@@ -71,6 +71,12 @@ def number_font(v, scale=1.0):
     return (FONT, max(9, int(size * scale)), "bold")
 
 
+def rrect_pts_wh(x, y, w, h, r):
+    """圆角矩形的 12 个控制点（宽高可不同，配合 smooth=True 使用）"""
+    x2, y2 = x + w, y + h
+    return [x+r,y, x2-r,y, x2,y, x2,y+r, x2,y2-r, x2,y2, x2-r,y2, x+r,y2, x,y2, x,y2-r, x,y+r, x,y]
+
+
 def rrect_pts(x, y, s, r):
     """圆角矩形的 12 个控制点（配合 smooth=True 使用）"""
     x2, y2 = x + s, y + s
@@ -473,15 +479,7 @@ class Game2048(tk.Tk):
         # 间隔按速度档：动画走完再启动下一轮深搜，减少 GIL 争抢窗口
         self._ai_job = self.after((90, 30, 8)[self._ai_speed], self.ai_step)
 
-    def _ai_auto_restart(self):
-        if self.ai_on and self.state == "over":
-            self.new_game()
-
     # ---------- 覆盖层 ----------
-    def _overlay_bg(self):
-        self.canvas.create_rectangle(0, 0, BOARD, BOARD, fill="#eee4da",
-                                     outline="", tags="overlay")
-
     def _overlay_button(self, cx, cy, w, text, tag, cmd):
         self.canvas.create_rectangle(cx - w / 2, cy - 22, cx + w / 2, cy + 22,
                                      fill=BUTTON_BG, outline="", tags=("overlay", tag))
@@ -490,28 +488,33 @@ class Game2048(tk.Tk):
         self.canvas.tag_bind(tag, "<Button-1>", lambda e: cmd())
 
     def show_win(self):
-        self._overlay_bg()
-        self.canvas.create_text(BOARD / 2, BOARD / 2 - 90, text="你合成了 2048！",
-                                font=(FONT, 34, "bold"), fill=DARK, tags="overlay")
-        self.canvas.create_text(BOARD / 2, BOARD / 2 - 50, text=f"得分 {self.score}",
-                                font=(FONT, 14), fill=DARK, tags="overlay")
-        self._overlay_button(BOARD / 2 - 85, BOARD / 2 + 5, 150, "继续游戏",
+        bw, bh = 320, 150
+        x1, y1 = (BOARD - bw) / 2, (BOARD - bh) / 2
+        self.canvas.create_polygon(rrect_pts_wh(x1, y1, bw, bh, 10), smooth=True,
+                                   fill="#eee4da", outline="", tags="overlay")
+        self.canvas.create_text(BOARD / 2, y1 + 32, text="你合成了 2048！",
+                                font=(FONT, 24, "bold"), fill=DARK, tags="overlay")
+        self.canvas.create_text(BOARD / 2, y1 + 58, text=f"得分 {self.score:,}",
+                                font=(FONT, 12), fill=DARK, tags="overlay")
+        self._overlay_button(BOARD / 2 - 78, y1 + 96, 140, "继续游戏",
                              "ov-continue", self.resume)
-        self._overlay_button(BOARD / 2 + 85, BOARD / 2 + 5, 150, "新开一局",
+        self._overlay_button(BOARD / 2 + 78, y1 + 96, 140, "新开一局",
                              "ov-restart", self.new_game)
-        self.canvas.create_text(BOARD / 2, BOARD / 2 + 70, text="Enter 也可以继续",
-                                font=(FONT, 11), fill=DARK, tags="overlay")
+        self.canvas.create_text(BOARD / 2, y1 + 134, text="Enter 也可以继续",
+                                font=(FONT, 10), fill=DARK, tags="overlay")
 
     def show_over(self):
-        self._overlay_bg()
-        self.canvas.create_text(BOARD / 2, BOARD / 2 - 60, text="游戏结束",
-                                font=(FONT, 38, "bold"), fill=DARK, tags="overlay")
-        self.canvas.create_text(BOARD / 2, BOARD / 2 - 12, text=f"得分 {self.score}",
-                                font=(FONT, 15), fill=DARK, tags="overlay")
-        self._overlay_button(BOARD / 2, BOARD / 2 + 55, 170, "再来一局",
+        # 中央紧凑徽章：只遮中间四格，最终盘面（贴边结构）保持可见
+        bw, bh = 250, 104
+        x1, y1 = (BOARD - bw) / 2, (BOARD - bh) / 2
+        self.canvas.create_polygon(rrect_pts_wh(x1, y1, bw, bh, 10), smooth=True,
+                                   fill="#eee4da", outline="", tags="overlay")
+        self.canvas.create_text(BOARD / 2, y1 + 30, text="游戏结束",
+                                font=(FONT, 22, "bold"), fill=DARK, tags="overlay")
+        self.canvas.create_text(BOARD / 2, y1 + 56, text=f"得分 {self.score:,}",
+                                font=(FONT, 12), fill=DARK, tags="overlay")
+        self._overlay_button(BOARD / 2, y1 + 82, 150, "再来一局",
                              "ov-restart", self.new_game)
-        if self.ai_on:   # AI 演示中 2.5 秒后自动重开
-            self.after(2500, self._ai_auto_restart)
 
 
 def load_best():
