@@ -87,4 +87,4 @@ python build_engine.py     # 构建 C++ 引擎（无 MSVC 时跳过，自动用 
 
 ## License
 
-MIT License © Leo2183
+[MIT](LICENSE) © Leo2183
