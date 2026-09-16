@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# numba 编译缓存
+*.nbc
+*.nbi
+
+# C++ 构建产物（可用 python build_engine.py 重建）
+engine.dll
+engine.obj
+engine.exp
+engine.lib
+engine_old.dll
+
+# 模型与训练数据（512MB 级大文件，不适合进版本库）
+models/
+
+# 本地个人设置（学习率/优先级/限速）
+settings.json
+
+# 临时文件：测试脚本与截图
+_*.py
+shot_*.png
