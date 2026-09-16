@@ -27,6 +27,7 @@ import numpy as np
 
 DIRS = "LRUD"
 MODEL_DIR = Path(__file__).resolve().parent / "models"
+MODEL_DIR.mkdir(parents=True, exist_ok=True)   # 从零使用时保证目录存在
 
 # ---------- 移动查表：65536 种 4 格行 → 压缩合并结果 ----------
 def _merge(vals):
