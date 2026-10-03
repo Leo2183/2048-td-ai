@@ -25,7 +25,7 @@
 | `build_engine.py` | MSVC 一键构建 `engine.dll` |
 | `train2048.py` | 命令行训练器 |
 | `train_gui.py` | 训练器 GUI：实时统计、EMA 降噪曲线、CPU 占用控制、训练时阻止休眠 |
-| `启动2048.vbs` / `训练AI.bat` | 双击即用的启动器 |
+| `启动2048.vbs` / `启动2048.bat` / `训练AI.bat` | 双击即用的启动器 |
 
 ## 快速开始
 
@@ -81,7 +81,7 @@ python build_engine.py     # 构建 C++ 引擎（无 MSVC 时跳过，自动用 
 **工程**：
 
 - 三级引擎回退：C++（ctypes，零第三方依赖）→ numba → 纯 numpy
-- 训练统计三级流水：0.4s 实时卡片 → 2s 曲线采样 → 每 250 局存档
+- 训练统计三级流水：0.4s 实时卡片 → 2s 曲线采样 → 每 250 局完整统计；模型每 60 秒自动快照存档
 - 训练时 `SetThreadExecutionState` 阻止系统休眠
 
 ## 参考
